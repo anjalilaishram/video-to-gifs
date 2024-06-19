@@ -10,11 +10,11 @@ def process_video_task(video_id, video_path):
     task_id = process_video_task.request.id
     try:
         text_segments = transcribe_video(video_path)  # Replace with actual Whisper AI call
-        update_video_status(video_id, 'processed', text_segments)
+        update_video_status(task_id, 'processed', text_segments)
     except Exception as e:
         print(f"Error processing video {video_id}: {e}")
         traceback.print_exc()  # Log the entire traceback
-        update_video_status(video_id, 'failed')
+        update_video_status(task_id, 'failed')
     finally:
         remove_from_queue('process_video', task_id)
 
@@ -24,7 +24,7 @@ def generate_gifs_task(video_id, segments_list, template):
     try:
         gif_zip_path = os.path.join(Config.GIF_FOLDER, f"{video_id}.zip")
         generate_gif_zip(video_id, segments_list, template, gif_zip_path)
-        update_gif_status(video_id, 'complete')
+        update_gif_status(task_id, 'complete')
     except Exception as e:
         print(f"Error generating GIFs for video {video_id}: {e}")
         traceback.print_exc()  # Log the entire traceback

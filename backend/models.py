@@ -14,11 +14,11 @@ def save_video_info(video_id, status, task_id=None):
         'task_id': task_id
     })
 
-def update_video_status(video_id, status, text_segments=None):
+def update_video_status(task_id, status, text_segments=None):
     update = {'status': status}
     if text_segments is not None:
         update['text_segments'] = text_segments
-    db.videos.update_one({'video_id': video_id}, {'$set': update})
+    db.videos.update_one({'task_id': task_id}, {'$set': update})
 
 
 def get_video_status(video_id):
@@ -83,8 +83,8 @@ def save_gif_info(video_id, status, task_id=None):
         'task_id': task_id
     })
 
-def update_gif_status(video_id, status):
-    db.gifs.update_one({'video_id': video_id}, {'$set': {'status': status}})
+def update_gif_status(task_id, status):
+    db.gifs.update_one({'task_id': task_id}, {'$set': {'status': status}})
 
 def get_gif_info(video_id):
     gif = db.gifs.find_one({'video_id': video_id})
