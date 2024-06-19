@@ -2,25 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { getGIFStatus, downloadGIFs } from '../api';
 import LoadingSpinner from './LoadingSpinner';
 
-const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated }) => {
-    const [queuePosition, setQueuePosition] = useState(null);
+const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated, gifGenerated, generateGifQueuePosition, setGenerateGifQueuePosition }) => {
     const [downloadable, setDownloadable] = useState(false);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const checkStatus = async () => {
             try {
                 const response = await getGIFStatus(gifTaskId);
-                setQueuePosition(response.data.queue_position);
+                setGenerateGifQueuePosition(response.data.queue_position);
                 if (response.data.status === 'complete') {
                     setDownloadable(true);
-                    setLoading(false);
                     setGifGenerated(true); // Mark GIFs as generated
                     clearInterval(intervalId);  // Stop polling once complete
                 }
             } catch (error) {
                 console.error('Failed to get GIF status', error);
-                setLoading(false);
+                setGifGenerated(false); // Mark GIFs as generated
             }
         };
 
@@ -47,14 +44,7 @@ const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated }) => {
 
     return (
         <div className="download-gifs">
-            {loading ? (
-                <>
-                    <p><LoadingSpinner small /> Generating GIFs...</p>
-                    {queuePosition !== null && (
-                        <p>Queue Position: {queuePosition}</p>
-                    )}
-                </>
-            ) : (
+            {gifGenerated && (
                 <>
                     <button onClick={handleDownload}>Download GIFs</button>
                     <button onClick={reset}>Upload New Video</button>

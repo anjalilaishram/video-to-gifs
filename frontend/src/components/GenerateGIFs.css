@@ -1,0 +1,132 @@
+.generate-gifs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 21px auto 13px auto;
+    width: 100%;
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #eaeaea;
+}
+
+.template-settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+.template-settings label {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    font-weight: 500;
+    color: #333333;
+}
+
+.template-settings input[type="color"],
+.template-settings input[type="number"],
+.template-settings select,
+.template-settings input[type="checkbox"] {
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+    transition: border-color 0.3s;
+}
+
+.template-settings input[type="color"] {
+    padding: 5px; /* For better alignment */
+    height: 40px; /* Increased height for color input */
+}
+
+.template-settings input[type="number"],
+.template-settings select {
+    appearance: none;
+}
+
+.template-settings input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+.template-settings input:focus,
+.template-settings select:focus {
+    border-color: #4caf50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.generate-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.generate-button {
+    padding: 12px 24px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    width: 100%;
+    max-width: 250px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.generate-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.generate-button:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+.generate-button:active:not(:disabled) {
+    transform: translateY(2px);
+}
+
+.loading-info {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #666666;
+}
+
+.error {
+    color: red;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.loading-spinner {
+    margin-top: 25px;
+}
+
+.loading-spinner .spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4caf50;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

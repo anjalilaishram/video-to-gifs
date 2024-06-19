@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SegmentsDisplay = ({ segments, onGenerateGIFs, showGenerateButton }) => {
+const SegmentsDisplay = ({ segments }) => {
     return (
         <div className="segments-display">
             <h3>Text Segments</h3>
@@ -11,9 +11,6 @@ const SegmentsDisplay = ({ segments, onGenerateGIFs, showGenerateButton }) => {
                     </span>
                 ))}
             </div>
-            {showGenerateButton && (
-                <button onClick={onGenerateGIFs}>Generate GIFs</button>
-            )}
         </div>
     );
 };

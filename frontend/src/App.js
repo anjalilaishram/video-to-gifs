@@ -17,6 +17,7 @@ function App() {
     const [generatingGIFs, setGeneratingGIFs] = useState(false);
     const [fileName, setFileName] = useState(localStorage.getItem('file_name') || '');
     const [gifGenerated, setGifGenerated] = useState(false); // New state to track GIF generation
+    const [generateGifQueuePosition, setGenerateGifQueuePosition] = useState(null);
 
     const template = {
         "font_color": "yellow",
@@ -37,7 +38,7 @@ function App() {
         setGifTaskId(null);
         setTextSegments([]);
         setGifURLs([]);  // Reset GIF URLs
-        setGeneratingGIFs(false);
+        setGeneratingGIFs(true);
         setGifGenerated(false);
         setFileName('');
         localStorage.removeItem('video_id');
@@ -82,17 +83,18 @@ function App() {
             {textSegments.length > 0 && (
                 <SegmentsDisplay
                     segments={textSegments}
-                    onGenerateGIFs={() => setGeneratingGIFs(true)}
-                    showGenerateButton={!gifTaskId && !generatingGIFs}
                 />
             )}
-            {generatingGIFs && !gifTaskId && (
+            {(
                 <GenerateGIFs
                     videoId={videoId}
                     segments={textSegments}
                     template={template}
+                    setGifGenerated={setGifGenerated}
+                    gifGenerated={gifGenerated}
                     setGifTaskId={setGifTaskId}
-                    onComplete={() => setGeneratingGIFs(false)}
+                    generateGifQueuePosition={generateGifQueuePosition}
+                    setGenerateGifQueuePosition={setGenerateGifQueuePosition}
                 />
             )}
             {gifTaskId && (
@@ -100,7 +102,10 @@ function App() {
                     gifTaskId={gifTaskId}
                     videoId={videoId}
                     reset={reset}
-                    setGifGenerated={setGifGenerated}  // Pass down the state setter
+                    setGifGenerated={setGifGenerated}
+                    gifGenerated={gifGenerated}
+                    generateGifQueuePosition={generateGifQueuePosition}
+                    setGenerateGifQueuePosition={setGenerateGifQueuePosition}
                 />
             )}
             {gifGenerated && gifURLs.length > 0 && (
