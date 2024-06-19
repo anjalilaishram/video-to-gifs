@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 import uuid
-from models import save_video_info, get_video_status, get_processed_text, save_gif_info, get_gif_info, get_position_in_queue, add_to_queue, get_segments_list, get_gif_status
+from models import save_video_info, get_processed_text, save_gif_info, get_gif_info, get_position_in_queue, add_to_queue, get_segments_list, get_gif_status_by_task, get_video_status_by_task
 from tasks import process_video_task, generate_gifs_task
 from config import Config
 from flask_cors import CORS
@@ -36,36 +36,35 @@ def upload_video():
         # Save initial video info with task ID
         save_video_info(video_id, 'queued', task.id)
         
-        return jsonify({'video_id': video_id}), 200
+        return jsonify({'video_id': video_id, 'task_id': task.id}), 200
 
-@app.route('/status/video/<video_id>', methods=['GET'])
-def video_status(video_id):
-    status_info = get_video_status(video_id)
-    task_id = status_info.get('task_id')
+@app.route('/status/video/<task_id>', methods=['GET'])
+def video_status(task_id):
+    # Retrieve video status using task_id
+    status_info = get_video_status_by_task(task_id)
     
-    if task_id:
-        # Check task status and position
+    if status_info:
         task = process_video_task.AsyncResult(task_id)
         position = get_position_in_queue('process_video', task_id)
         status_info['queue_position'] = position
         status_info['task_status'] = task.status
+        return jsonify(status_info)
+    else:
+        return jsonify({'error': 'Task not found'}), 404
 
-    return jsonify(status_info)
-
-
-@app.route('/status/gif/<video_id>', methods=['GET'])
-def gif_status(video_id):
-    status_info = get_gif_status(video_id)
-    task_id = status_info.get('task_id')
+@app.route('/status/gif/<task_id>', methods=['GET'])
+def gif_status(task_id):
+    # Retrieve gif status using task_id
+    status_info = get_gif_status_by_task(task_id)
     
-    if task_id:
-        # Check task status and position
+    if status_info:
         task = generate_gifs_task.AsyncResult(task_id)
         position = get_position_in_queue('generate_gifs', task_id)
         status_info['queue_position'] = position
         status_info['task_status'] = task.status
-
-    return jsonify(status_info)
+        return jsonify(status_info)
+    else:
+        return jsonify({'error': 'Task not found'}), 404
 
 @app.route('/result/<video_id>', methods=['GET'])
 def get_result(video_id):
@@ -92,7 +91,7 @@ def generate_gifs():
     # Save initial gif info with task ID
     save_gif_info(video_id, 'queued', task.id)
     
-    return jsonify({'status': 'queued'}), 200
+    return jsonify({'status': 'queued', 'task_id': task.id}), 200
 
 @app.route('/gifs/<video_id>', methods=['GET'])
 def get_gifs(video_id):

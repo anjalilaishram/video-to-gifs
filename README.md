@@ -170,9 +170,10 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Success (200 OK)**
 
-  ```json
+  ```python
   {
-    "video_id": "string"
+    "video_id": "string",
+    "task_id": "string"
   }
   ```
 
@@ -181,10 +182,11 @@ Configure the backend using the `.env` file located in the `backend` directory. 
   | Key       | Type   | Description                   |
   |-----------|--------|-------------------------------|
   | video_id  | string | The unique ID for the uploaded video |
+  | task_id   | string | The Celery task ID for processing the video |
 
 - **Error (400 Bad Request)**
 
-  ```json
+  ```python
   {
     "error": "No file part" | "No selected file"
   }
@@ -192,7 +194,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 ### Get Video Processing Status
 
-**Endpoint**: `GET /status/video/{video_id}`
+**Endpoint**: `GET /status/video/{task_id}`
 
 **Description**: Gets the processing status of the uploaded video.
 
@@ -202,18 +204,18 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
   | Parameter | Type   | Description               |
   |-----------|--------|---------------------------|
-  | video_id  | string | The unique ID of the video |
+  | task_id   | string | The Celery task ID for video processing |
 
 **Response**:
 
 - **Success (200 OK)**
 
-  ```json
+  ```python
   {
     "status": "queued" | "processing" | "processed" | "failed",
     "queue_position": integer | null,
     "task_status": "PENDING" | "STARTED" | "SUCCESS" | "FAILURE" | "REVOKED",
-    "task_id": "string"
+    "video_id": "string"
   }
   ```
 
@@ -224,19 +226,19 @@ Configure the backend using the `.env` file located in the `backend` directory. 
   | status         | string  | The current processing status of the video        |
   | queue_position | integer | Position in the processing queue, or null         |
   | task_status    | string  | The Celery task status                            |
-  | task_id        | string  | The Celery task ID                                |
+  | video_id       | string  | The unique ID of the video                        |
 
 - **Error (404 Not Found)**
 
-  ```json
+  ```python
   {
-    "status": "not found"
+    "error": "Task not found"
   }
   ```
 
 ### Get GIF Generation Status
 
-**Endpoint**: `GET /status/gif/{video_id}`
+**Endpoint**: `GET /status/gif/{task_id}`
 
 **Description**: Gets the status of GIF generation for the video.
 
@@ -246,18 +248,18 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
   | Parameter | Type   | Description               |
   |-----------|--------|---------------------------|
-  | video_id  | string | The unique ID of the video |
+  | task_id   | string | The Celery task ID for GIF generation |
 
 **Response**:
 
 - **Success (200 OK)**
 
-  ```json
+  ```python
   {
     "status": "queued" | "processing" | "complete" | "failed",
     "queue_position": integer | null,
     "task_status": "PENDING" | "STARTED" | "SUCCESS" | "FAILURE" | "REVOKED",
-    "task_id": "string"
+    "video_id": "string"
   }
   ```
 
@@ -268,13 +270,13 @@ Configure the backend using the `.env` file located in the `backend` directory. 
   | status         | string  | The current status of the GIF generation          |
   | queue_position | integer | Position in the generation queue, or null         |
   | task_status    | string  | The Celery task status                            |
-  | task_id        | string  | The Celery task ID                                |
+  | video_id       | string  | The unique ID of the video                        |
 
 - **Error (404 Not Found)**
 
-  ```json
+  ```python
   {
-    "status": "not found"
+    "error": "Task not found"
   }
   ```
 
@@ -296,7 +298,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Success (200 OK)**
 
-  ```json
+  ```python
   [
     {
       "segment_start": float,
@@ -304,8 +306,8 @@ Configure the backend using the `.env` file located in the `backend` directory. 
       "text": "string",
       "words": [
         {
-          "start": float,
-          "end": float,
+          "start_time": float,
+          "end_time": float,
           "word": "string"
         }
       ]
@@ -324,7 +326,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Error (404 Not Found)**
 
-  ```json
+  ```python
   {
     "text_segments": []
   }
@@ -341,7 +343,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 - **Headers**: `Content-Type: application/json`
 - **Body**:
 
-  ```json
+  ```python
   {
     "video_id": "string",
     "segments_list": [
@@ -351,18 +353,18 @@ Configure the backend using the `.env` file located in the `backend` directory. 
         "text": "string",
         "words": [
           {
-            "start": float,
-            "end": float,
-            "word": "string"
+            "start_time": float,
+            "end_time": float,
+            "word
+
+": "string"
           }
         ]
       }
     ],
     "template": {
       "font_color": "string",
-      "
-
-font_size": integer,
+      "font_size": integer,
       "position": "string",
       "max_words": integer,
       "fps": integer
@@ -383,7 +385,7 @@ font_size": integer,
   | template       | object   | Template settings for GIF generation                |
   | font_color     | string   | Font color of the text                              |
   | font_size      | integer  | Font size of the text                               |
-  | position       | string   | Position of the text                                |
+  | position       | string   | Position of the text (`'top_left'`, `'top_center'`, `'top_right'`, `'center_left'`, `'center'`, `'center_right'`, `'bottom_left'`, `'bottom_center'`, `'bottom_right'`) |
   | max_words      | integer  | Maximum words to show at once                       |
   | fps            | integer  | Frames per second for the GIF                       |
 
@@ -391,9 +393,10 @@ font_size": integer,
 
 - **Success (200 OK)**
 
-  ```json
+  ```python
   {
-    "status": "queued"
+    "status": "queued",
+    "task_id": "string"
   }
   ```
 
@@ -402,12 +405,13 @@ font_size": integer,
   | Key    | Type   | Description                            |
   |--------|--------|----------------------------------------|
   | status | string | Indicates the task is queued for GIF generation |
+  | task_id| string | The Celery task ID for GIF generation |
 
 - **Error (400 Bad Request)**
 
-  ```json
+  ```python
   {
-    "error": "string"
+    "error": "Segments list not provided and not found in the database"
   }
   ```
 
@@ -433,7 +437,7 @@ font_size": integer,
 
 - **Error (404 Not Found)**
 
-  ```json
+  ```python
   {
     "error": "GIFs not ready or failed"
   }

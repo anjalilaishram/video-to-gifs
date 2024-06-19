@@ -63,6 +63,12 @@ def get_position_in_queue(queue_name, task_id):
         return task_ids.index(task_id) + 1
     return None
 
+def get_video_status_by_task(task_id):
+    return db.videos.find_one({"task_id": task_id}, {"_id": 0, "video_id": 1, "status": 1})
+
+def get_gif_status_by_task(task_id):
+    return db.gifs.find_one({"task_id": task_id}, {"_id": 0, "video_id": 1, "status": 1})
+
 
 def get_processed_text(video_id):
     video = db.videos.find_one({'video_id': video_id})
