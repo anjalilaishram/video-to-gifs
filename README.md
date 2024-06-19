@@ -355,9 +355,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
           {
             "start_time": float,
             "end_time": float,
-            "word
-
-": "string"
+            "word": "string"
           }
         ]
       }
