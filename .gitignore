@@ -1,3 +1,9 @@
+venv
+__pycache__
+backend/static
+dump.rdb
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
