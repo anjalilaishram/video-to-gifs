@@ -19,11 +19,16 @@ function App() {
     const [gifGenerated, setGifGenerated] = useState(false); // New state to track GIF generation
 
     const template = {
-        font_color: "yellow",
-        font_size: 144,
-        position: "bottom",
-        max_words: 3,
-        fps: 10
+        "font_color": "yellow",
+        "font_size": 144,
+        "position": "bottom",
+        "bold": true,
+        "background_color": "#000000",
+        "background_opacity": 0.5,
+        "padding": 34,
+        "margin": 8,
+        "max_words": 3,
+        "fps": 10
     };
 
     const reset = () => {

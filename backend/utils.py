@@ -1,4 +1,5 @@
-from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip, ColorClip
+from matplotlib.colors import to_rgba
 import zipfile
 import os
 from config import Config
@@ -42,12 +43,22 @@ def transcribe_video(video_path):
         segments = transcribe_audio(audio_path)
     return segments
 
-def create_text_clip(text, start, end, font_size, font_color, video_size, position, margin=55):
-    text_clip = TextClip(text, fontsize=font_size, color=font_color)
+def create_text_clip(text, start, end, font_size, font_color, video_size, position, bold=False, background_color=None, background_opacity=1.0, padding=10, margin=55):
+    # Text properties
+    text_attributes = {
+        'fontsize': font_size,
+        'color': font_color,
+        'font': 'Arial-Bold' if bold else 'Arial'
+    }
 
-    # Manually calculate positions for precise placement
+    text_clip = TextClip(text, **text_attributes)
+    text_clip = text_clip.set_start(start).set_duration(end - start)
+    
+    # Calculate positions and sizes for the text and background
     width, height = video_size
     text_width, text_height = text_clip.size
+    padded_text_width = text_width + 2 * padding
+    padded_text_height = text_height + 2 * padding
 
     # Default to center if position is invalid
     pos = ('center', 'center')
@@ -57,22 +68,40 @@ def create_text_clip(text, start, end, font_size, font_color, video_size, positi
     elif position == "top":
         pos = ('center', margin)
     elif position == "bottom":
-        pos = ('center', height - text_height - margin)
+        pos = ('center', height - padded_text_height - margin)
     elif position == "left":
         pos = (margin, 'center')
     elif position == "right":
-        pos = (width - text_width - margin, 'center')
+        pos = (width - padded_text_width - margin, 'center')
     elif position == "top_left":
         pos = (margin, margin)
     elif position == "top_right":
-        pos = (width - text_width - margin, margin)
+        pos = (width - padded_text_width - margin, margin)
     elif position == "bottom_left":
-        pos = (margin, height - text_height - margin)
+        pos = (margin, height - padded_text_height - margin)
     elif position == "bottom_right":
-        pos = (width - text_width - margin, height - text_height - margin)
+        pos = (width - padded_text_width - margin, height - padded_text_height - margin)
 
     text_clip = text_clip.set_position(pos)
-    return text_clip.set_start(start).set_duration(end - start)
+
+    if background_color:
+        # Convert background_color to RGBA if it is a name or hex string
+        if isinstance(background_color, str):
+            bg_color_rgba = to_rgba(background_color)
+        else:
+            bg_color_rgba = background_color
+
+        # Apply opacity
+        bg_color_rgba = bg_color_rgba[:3] + (int(background_opacity * 255),)
+
+        # Create a ColorClip for the background with the same size as the text plus padding
+        bg_clip = ColorClip(size=(padded_text_width, padded_text_height), color=bg_color_rgba)
+        bg_pos = (pos[0] - padding if isinstance(pos[0], (int, float)) else pos[0],
+                  pos[1] - padding if isinstance(pos[1], (int, float)) else pos[1])
+        bg_clip = bg_clip.set_start(start).set_duration(end - start).set_position(bg_pos)
+        return CompositeVideoClip([bg_clip, text_clip], size=video_size)
+
+    return text_clip
 
 def generate_gif_zip(video_id, segments_list, template, output_zip_path):
     gifs_folder = os.path.join(Config.GIF_FOLDER, video_id)
@@ -87,6 +116,11 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
     position = template.get('position', 'bottom')
     max_words = template.get('max_words', 3)
     fps = template.get('fps', 10)
+    bold = template.get('bold', False)
+    background_color = template.get('background_color', (0, 0, 0))  # Default to black
+    background_opacity = template.get('background_opacity', 1.0)  # Default to fully opaque
+    padding = template.get('padding', 10)  # Added padding
+    margin = template.get('margin', 55)  # Added margin
 
     gif_index = 0
     buffer_time = 1.0  # 1000ms buffer
@@ -114,7 +148,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
             if len(current_words) == max_words or word_info == words[-1]:
                 # For the last set of words in the segment, extend to the buffer end
                 end_time = extended_end - segment_start if word_info == words[-1] else relative_end
-                text_clip = create_text_clip(' '.join(current_words), current_start, end_time, font_size, font_color, video_clip.size, position)
+                text_clip = create_text_clip(' '.join(current_words), current_start, end_time, font_size, font_color, video_clip.size, position, bold, background_color, background_opacity, padding, margin)
                 text_clips.append(text_clip)
                 current_words = []
                 current_start = relative_end  # Next clip starts where the previous ended
@@ -172,6 +206,11 @@ if __name__ == '__main__':
         "font_color": "yellow",
         "font_size": 144,
         "position": "bottom",
+        "bold": True,
+        "background_color": "#000000",  # Black background color
+        "background_opacity": 0.5,  # 50% opacity
+        "padding": 34,
+        "margin": 8,
         "max_words": 3,
         "fps": 10
     }

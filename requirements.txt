@@ -6,3 +6,4 @@ celery
 redis
 whisper-timestamped
 flask-cors
+matplotlib
