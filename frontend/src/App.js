@@ -20,7 +20,7 @@ function App() {
 
     const template = {
         font_color: "yellow",
-        font_size: 30,
+        font_size: 144,
         position: "bottom",
         max_words: 3,
         fps: 10

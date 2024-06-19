@@ -43,6 +43,38 @@ def transcribe_video(video_path):
         segments = transcribe_audio(audio_path)
     return segments
 
+def create_text_clip(text, start, end, font_size, font_color, video_size, position, margin=55):
+    text_clip = TextClip(text, fontsize=font_size, color=font_color)
+
+    # Manually calculate positions for precise placement
+    width, height = video_size
+    text_width, text_height = text_clip.size
+
+    # Default to center if position is invalid
+    pos = ('center', 'center')
+
+    if position == "center":
+        pos = ('center', 'center')
+    elif position == "top":
+        pos = ('center', margin)
+    elif position == "bottom":
+        pos = ('center', height - text_height - margin)
+    elif position == "left":
+        pos = (margin, 'center')
+    elif position == "right":
+        pos = (width - text_width - margin, 'center')
+    elif position == "top_left":
+        pos = (margin, margin)
+    elif position == "top_right":
+        pos = (width - text_width - margin, margin)
+    elif position == "bottom_left":
+        pos = (margin, height - text_height - margin)
+    elif position == "bottom_right":
+        pos = (width - text_width - margin, height - text_height - margin)
+
+    text_clip = text_clip.set_position(pos)
+    return text_clip.set_start(start).set_duration(end - start)
+
 def generate_gif_zip(video_id, segments_list, template, output_zip_path):
     gifs_folder = os.path.join(Config.GIF_FOLDER, video_id)
     os.makedirs(gifs_folder, exist_ok=True)
@@ -52,18 +84,12 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
 
     # Extract template properties
     font_color = template.get('font_color', 'white')
-    font_size = template.get('font_size', 24)
+    font_size = template.get('font_size', 144)
     position = template.get('position', 'bottom')
     max_words = template.get('max_words', 3)
     fps = template.get('fps', 10)
 
     gif_index = 0
-
-    def create_text_clip(text, start, end):
-        return (TextClip(text, fontsize=font_size, color=font_color, size=video_clip.size)
-                .set_position(position)
-                .set_start(start)
-                .set_duration(end - start))
 
     for segment in segments_list:
         segment_start = segment['segment_start']
@@ -85,7 +111,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
 
             current_words.append(word_text)
             if len(current_words) == max_words or word_info == words[-1]:
-                text_clip = create_text_clip(' '.join(current_words), current_start, relative_end)
+                text_clip = create_text_clip(' '.join(current_words), current_start, relative_end, font_size, font_color, video_clip.size, position)
                 text_clips.append(text_clip)
                 current_words = []
                 current_start = relative_end
@@ -111,7 +137,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
 
 
 if __name__ == '__main__':
-    video_id = '46645f77-50fa-4e86-98cb-50af1575d64f'
+    video_id = '2bea7889-a794-413f-859a-4e6c721989f4'
     segments_list = [
         {
             "segment_end": 1.38,
@@ -141,7 +167,7 @@ if __name__ == '__main__':
     ]
     template = {
         "font_color": "yellow",
-        "font_size": 55,
+        "font_size": 144,
         "position": "bottom",
         "max_words": 3,
         "fps": 10
