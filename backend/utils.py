@@ -4,8 +4,7 @@ import os
 from config import Config
 import whisper_timestamped as whisper
 import tempfile
-import json 
-
+import json
 
 def extract_audio_from_video(video_path, audio_path):
     """
@@ -90,10 +89,12 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
     fps = template.get('fps', 10)
 
     gif_index = 0
+    buffer_time = 1.0  # 1000ms buffer
 
     for segment in segments_list:
         segment_start = segment['segment_start']
         segment_end = segment['segment_end']
+        extended_end = segment_end + buffer_time  # Extend segment duration by buffer time
         words = segment['words']
         
         current_start = 0
@@ -111,16 +112,19 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
 
             current_words.append(word_text)
             if len(current_words) == max_words or word_info == words[-1]:
-                text_clip = create_text_clip(' '.join(current_words), current_start, relative_end, font_size, font_color, video_clip.size, position)
+                # For the last set of words in the segment, extend to the buffer end
+                end_time = extended_end - segment_start if word_info == words[-1] else relative_end
+                text_clip = create_text_clip(' '.join(current_words), current_start, end_time, font_size, font_color, video_clip.size, position)
                 text_clips.append(text_clip)
                 current_words = []
-                current_start = relative_end
+                current_start = relative_end  # Next clip starts where the previous ended
 
-        # Create the composite video clip for this segment
-        gif_video = CompositeVideoClip([video_clip.subclip(segment_start, segment_end)] + text_clips)
+        # Adjust the subclip duration to include the buffer time
+        video_segment = video_clip.subclip(segment_start, extended_end)
+        gif_video = CompositeVideoClip([video_segment] + text_clips)
 
         # Save the GIF
-        gif_path = os.path.join(gifs_folder, f"segment_{gif_index:>03}.gif")
+        gif_path = os.path.join(gifs_folder, f"segment_{gif_index:03}.gif")
         gif_video.write_gif(gif_path, fps=fps)
         gif_index += 1
 
@@ -134,7 +138,6 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
     # for file in os.listdir(gifs_folder):
     #     os.remove(os.path.join(gifs_folder, file))
     # os.rmdir(gifs_folder)
-
 
 if __name__ == '__main__':
     video_id = '2bea7889-a794-413f-859a-4e6c721989f4'
