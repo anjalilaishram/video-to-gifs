@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getGIFStatus, downloadGIFs } from '../api';
 import LoadingSpinner from './LoadingSpinner';
 
-const DownloadGIFs = ({ gifTaskId, videoId, reset }) => {
+const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated }) => {
     const [queuePosition, setQueuePosition] = useState(null);
     const [downloadable, setDownloadable] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -15,6 +15,7 @@ const DownloadGIFs = ({ gifTaskId, videoId, reset }) => {
                 if (response.data.status === 'complete') {
                     setDownloadable(true);
                     setLoading(false);
+                    setGifGenerated(true); // Mark GIFs as generated
                     clearInterval(intervalId);  // Stop polling once complete
                 }
             } catch (error) {
@@ -27,7 +28,7 @@ const DownloadGIFs = ({ gifTaskId, videoId, reset }) => {
         checkStatus();  // Immediate call to show the first status
 
         return () => clearInterval(intervalId);
-    }, [gifTaskId]);
+    }, [gifTaskId, setGifGenerated]);
 
     const handleDownload = async () => {
         try {

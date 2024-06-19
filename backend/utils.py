@@ -94,7 +94,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
         gif_video = CompositeVideoClip([video_clip.subclip(segment_start, segment_end)] + text_clips)
 
         # Save the GIF
-        gif_path = os.path.join(gifs_folder, f"segment_{gif_index}.gif")
+        gif_path = os.path.join(gifs_folder, f"segment_{gif_index:>03}.gif")
         gif_video.write_gif(gif_path, fps=fps)
         gif_index += 1
 

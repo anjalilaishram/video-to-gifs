@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -13,6 +13,11 @@ os.makedirs(Config.GIF_FOLDER, exist_ok=True)
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend-backend interaction
 app.config.from_object(Config)
+
+# Serve GIFs directly from the static directory
+@app.route('/static/gifs/<path:filename>')
+def serve_gif(filename):
+    return send_from_directory(Config.GIF_FOLDER, filename)
 
 @app.route('/upload', methods=['POST'])
 def upload_video():
@@ -108,6 +113,22 @@ def get_gifs(video_id):
     if gif_info.get('status') == 'complete':
         return send_from_directory(Config.GIF_FOLDER, f'{video_id}.zip', as_attachment=True)
     return jsonify(gif_info), 404
+
+@app.route('/gif_urls/<video_id>', methods=['GET'])
+def gif_urls(video_id):
+    gifs_folder = Config.GIF_FOLDER
+    video_folder = os.path.join(gifs_folder, video_id)
+    if not os.path.exists(video_folder):
+        return jsonify({'error': 'GIFs not found for this video ID'}), 404
+
+    # Collect and sort filenames
+    gifs = sorted(
+        [url_for('serve_gif', filename=os.path.join(video_id, filename), _external=True)
+        for filename in os.listdir(video_folder) if filename.endswith('.gif')]
+    )
+
+    return jsonify({'gif_urls': gifs})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

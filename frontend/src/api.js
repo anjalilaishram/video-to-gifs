@@ -29,3 +29,8 @@ export const getGIFStatus = (taskId) => {
 export const downloadGIFs = (videoId) => {
     return axios.get(`${API_BASE_URL}/gifs/${videoId}`, { responseType: 'blob' });
 };
+
+export const getGIFURLs = async (videoId) => {
+    const response = await axios.get(`${API_BASE_URL}/gif_urls/${videoId}`);
+    return response.data;
+};
