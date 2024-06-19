@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { uploadVideo } from '../api';
-import './UploadForm.css';  // Import the new CSS file
+import {
+    Box,
+    Button,
+    CircularProgress,
+    Typography,
+    Input,
+    InputLabel,
+    FormControl
+} from '@mui/material';
+import { styled } from '@mui/system';
+import './UploadForm.css';
+
+const HiddenInput = styled('input')({
+    display: 'none',
+});
 
 const UploadForm = ({ setVideoId, setVideoTaskId, setFileName }) => {
     const [file, setFile] = useState(null);
@@ -37,24 +51,42 @@ const UploadForm = ({ setVideoId, setVideoTaskId, setFileName }) => {
     };
 
     return (
-        <div className="upload-form">
+        <Box className="upload-form" p={3} borderRadius={2} boxShadow={3} bgcolor="background.paper">
             <form onSubmit={handleSubmit}>
-                <label htmlFor="file-upload" className="custom-file-upload">
-                    {file ? file.name : 'Choose File'}
-                </label>
-                <input
-                    id="file-upload"
-                    type="file"
-                    accept="video/*"
-                    onChange={handleFileChange}
-                    className="file-input"
-                />
-                <button type="submit" disabled={uploading} className="upload-button">
-                    {uploading ? 'Uploading...' : 'Upload'}
-                </button>
+                <FormControl fullWidth margin="normal">
+                    <InputLabel shrink htmlFor="file-upload">
+                        {file ? file.name : 'Choose File'}
+                    </InputLabel>
+                    <HiddenInput
+                        id="file-upload"
+                        type="file"
+                        accept="video/*"
+                        onChange={handleFileChange}
+                    />
+                    <label htmlFor="file-upload">
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            component="span"
+                            fullWidth
+                        >
+                            {file ? file.name : 'Choose File'}
+                        </Button>
+                    </label>
+                </FormControl>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    disabled={uploading}
+                    className="upload-button"
+                >
+                    {uploading ? <CircularProgress size={24} color="inherit" /> : 'Upload'}
+                </Button>
             </form>
-            {error && <p className="error">{error}</p>}
-        </div>
+            {error && <Typography color="error" mt={2}>{error}</Typography>}
+        </Box>
     );
 };
 
