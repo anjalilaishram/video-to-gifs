@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { generateGIFs } from '../api';
 import LoadingSpinner from './LoadingSpinner';
 import {
@@ -107,7 +107,12 @@ const GenerateGIFs = ({ videoId, segments, setGifTaskId, setGifGenerated, genera
                         >
                             <MenuItem value="top">Top</MenuItem>
                             <MenuItem value="bottom">Bottom</MenuItem>
-                            <MenuItem value="center">Center</MenuItem>
+                            <MenuItem value="left">Left</MenuItem>
+                            <MenuItem value="right">Right</MenuItem>
+                            <MenuItem value="top_left">Top Left</MenuItem>
+                            <MenuItem value="top_right">Top Right</MenuItem>
+                            <MenuItem value="bottom_left">Bottom Left</MenuItem>
+                            <MenuItem value="bottom_right">Bottom Right</MenuItem>
                         </Select>
                     </StyledFormControl>
                 </Grid>
