@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, url_for
+from flask import Flask, request, jsonify, send_from_directory, url_for, abort
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -13,6 +13,17 @@ os.makedirs(Config.GIF_FOLDER, exist_ok=True)
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend-backend interaction
 app.config.from_object(Config)
+
+# API to serve video files from UPLOAD_FOLDER without extension
+@app.route('/static/videos/<string:video_id>', methods=['GET'])
+def serve_video(video_id):
+    video_filename = f"{video_id}.mp4"
+    video_path = os.path.join(Config.UPLOAD_FOLDER, video_filename)
+
+    if os.path.exists(video_path):
+        return send_from_directory(Config.UPLOAD_FOLDER, video_filename)
+    else:
+        abort(404, description="Video not found")
 
 # Serve GIFs directly from the static directory
 @app.route('/static/gifs/<path:filename>')

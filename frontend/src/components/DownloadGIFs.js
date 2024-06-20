@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Button, CircularProgress, Box, Typography } from '@mui/material';
 import { getGIFStatus, downloadGIFs } from '../api';
-import LoadingSpinner from './LoadingSpinner';
 
 const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated, gifGenerated, generateGifQueuePosition, setGenerateGifQueuePosition }) => {
     const [downloadable, setDownloadable] = useState(false);
@@ -13,16 +13,16 @@ const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated, gifGenerated
                 if (response.data.status === 'complete') {
                     setDownloadable(true);
                     setGifGenerated(true); // Mark GIFs as generated
-                    clearInterval(intervalId);  // Stop polling once complete
+                    clearInterval(intervalId); // Stop polling once complete
                 }
             } catch (error) {
                 console.error('Failed to get GIF status', error);
-                setGifGenerated(false); // Mark GIFs as generated
+                setGifGenerated(false); // Mark GIFs as not generated
             }
         };
 
         const intervalId = setInterval(checkStatus, 5000);
-        checkStatus();  // Immediate call to show the first status
+        checkStatus(); // Immediate call to show the first status
 
         return () => clearInterval(intervalId);
     }, [gifTaskId, setGifGenerated]);
@@ -43,14 +43,22 @@ const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated, gifGenerated
     };
 
     return (
-        <div className="download-gifs">
-            {gifGenerated && (
+        <Box className="download-gifs" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+            {gifGenerated ? (
                 <>
-                    <button onClick={handleDownload}>Download GIFs</button>
-                    <button onClick={reset}>Upload New Video</button>
+                    <Button variant="contained" color="primary" onClick={handleDownload}>
+                        Download GIFs
+                    </Button>
                 </>
+            ) : (
+                <Box textAlign="center">
+                    <CircularProgress />
+                    <Typography variant="body2" mt={2}>
+                        {generateGifQueuePosition ? `Queue Position: ${generateGifQueuePosition}` : 'Processing...'}
+                    </Typography>
+                </Box>
             )}
-        </div>
+        </Box>
     );
 };
 

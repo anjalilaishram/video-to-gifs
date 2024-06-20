@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { Grid, Container, Box } from '@mui/material';
 import UploadForm from './components/UploadForm';
 import VideoInfo from './components/VideoInfo';
-import SegmentsDisplay from './components/SegmentsDisplay';
 import GenerateGIFs from './components/GenerateGIFs';
 import DownloadGIFs from './components/DownloadGIFs';
 import GIFDisplay from './components/GIFDisplay';
 import { getGIFURLs } from './api';
-import './App.css';
 
 function App() {
     const [videoId, setVideoId] = useState(localStorage.getItem('video_id') || null);
     const [videoTaskId, setVideoTaskId] = useState(localStorage.getItem('video_task_id') || null);
     const [gifTaskId, setGifTaskId] = useState(localStorage.getItem('gif_task_id') || null);
     const [textSegments, setTextSegments] = useState([]);
-    const [gifURLs, setGifURLs] = useState([]);  // State for GIF URLs
+    const [gifURLs, setGifURLs] = useState([]);
     const [generatingGIFs, setGeneratingGIFs] = useState(false);
     const [fileName, setFileName] = useState(localStorage.getItem('file_name') || '');
-    const [gifGenerated, setGifGenerated] = useState(false); // New state to track GIF generation
+    const [gifGenerated, setGifGenerated] = useState(false);
     const [generateGifQueuePosition, setGenerateGifQueuePosition] = useState(null);
 
     const template = {
@@ -37,7 +36,7 @@ function App() {
         setVideoTaskId(null);
         setGifTaskId(null);
         setTextSegments([]);
-        setGifURLs([]);  // Reset GIF URLs
+        setGifURLs([]);
         setGeneratingGIFs(true);
         setGifGenerated(false);
         setFileName('');
@@ -63,55 +62,67 @@ function App() {
     }, [gifGenerated, videoId]);
 
     return (
-        <div className="App">
-            <h1>Video to GIFs</h1>
-            {!videoId && (
-                <UploadForm
-                    setVideoId={setVideoId}
-                    setVideoTaskId={setVideoTaskId}
-                    setFileName={setFileName}
-                />
-            )}
-            {videoId && (
-                <VideoInfo
-                    videoTaskId={videoTaskId}
-                    videoId={videoId}
-                    fileName={fileName}
-                    setTextSegments={setTextSegments}
-                />
-            )}
-            {textSegments.length > 0 && (
-                <SegmentsDisplay
-                    segments={textSegments}
-                />
-            )}
-            {(
-                <GenerateGIFs
-                    videoId={videoId}
-                    segments={textSegments}
-                    template={template}
-                    setGifGenerated={setGifGenerated}
-                    gifGenerated={gifGenerated}
-                    setGifTaskId={setGifTaskId}
-                    generateGifQueuePosition={generateGifQueuePosition}
-                    setGenerateGifQueuePosition={setGenerateGifQueuePosition}
-                />
-            )}
-            {gifTaskId && (
-                <DownloadGIFs
-                    gifTaskId={gifTaskId}
-                    videoId={videoId}
-                    reset={reset}
-                    setGifGenerated={setGifGenerated}
-                    gifGenerated={gifGenerated}
-                    generateGifQueuePosition={generateGifQueuePosition}
-                    setGenerateGifQueuePosition={setGenerateGifQueuePosition}
-                />
-            )}
-            {gifGenerated && gifURLs.length > 0 && (
-                <GIFDisplay gifURLs={gifURLs} />
-            )}
-        </div>
+        <Container style={{ maxWidth: 'none' }}>
+            <Box my={4}>
+                <Grid container spacing={1}>
+                    <Grid item xs={12} sm={4} style={{ overflowY: 'auto' }}>
+                        <Box p={2}>
+                            <h1>Video to GIFs</h1>
+                            {!videoId && (
+                                <UploadForm
+                                    setVideoId={setVideoId}
+                                    setVideoTaskId={setVideoTaskId}
+                                    setFileName={setFileName}
+                                />
+                            )}
+                            {videoId && (
+                                <VideoInfo
+                                    videoTaskId={videoTaskId}
+                                    videoId={videoId}
+                                    fileName={fileName}
+                                    setTextSegments={setTextSegments}
+                                    reset={reset}
+                                />
+                            )}
+                        </Box>
+                    </Grid>
+                    <Grid item xs={12} sm={3} style={{ overflowY: 'auto' }}>
+                        <Box p={2}>
+                            {textSegments.length > 0 && (
+                                <GenerateGIFs
+                                    videoId={videoId}
+                                    segments={textSegments}
+                                    setGifGenerated={setGifGenerated}
+                                    gifGenerated={gifGenerated}
+                                    setGifTaskId={setGifTaskId}
+                                    generateGifQueuePosition={generateGifQueuePosition}
+                                    setGenerateGifQueuePosition={setGenerateGifQueuePosition}
+                                />
+                            )}
+                        </Box>
+                    </Grid>
+                    <Grid item xs={12} sm={5} style={{ overflowY: 'auto' }}>
+                        <Box p={2}>
+                            {gifGenerated && gifURLs.length > 0 && (
+                                <GIFDisplay gifURLs={gifURLs} />
+                            )}
+                            <br></br>
+                            {gifTaskId && (
+                                <DownloadGIFs
+                                    gifTaskId={gifTaskId}
+                                    videoId={videoId}
+                                    reset={reset}
+                                    setGifGenerated={setGifGenerated}
+                                    gifGenerated={gifGenerated}
+                                    generateGifQueuePosition={generateGifQueuePosition}
+                                    setGenerateGifQueuePosition={setGenerateGifQueuePosition}
+                                />
+                            )}
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Box>
+        </Container>
     );
 }
 

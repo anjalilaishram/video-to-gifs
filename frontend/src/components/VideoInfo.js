@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { Box, Typography, CircularProgress, Button } from '@mui/material';
 import { getVideoStatus, getProcessedText } from '../api';
-import LoadingSpinner from './LoadingSpinner';
+import VideoPlayer from './VideoPlayer';
+import SegmentsDisplay from './SegmentsDisplay';
 
-const VideoInfo = ({ videoTaskId, videoId, fileName, setTextSegments }) => {
+const VideoInfo = ({ videoTaskId, videoId, fileName, setTextSegments, reset }) => {
     const [queuePosition, setQueuePosition] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [segments, setSegments] = useState([]); // Local state for segments
+    const [segments, setSegments] = useState([]);
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -14,8 +16,8 @@ const VideoInfo = ({ videoTaskId, videoId, fileName, setTextSegments }) => {
                 setQueuePosition(response.data.queue_position);
                 if (response.data.status === 'processed') {
                     const fetchedSegments = await fetchTextSegments(response.data.video_id);
-                    setSegments(fetchedSegments); // Update local segments state
-                    setTextSegments(fetchedSegments); // Update parent state
+                    setSegments(fetchedSegments);
+                    setTextSegments(fetchedSegments);
                     setLoading(false);
                     clearInterval(intervalId);
                 }
@@ -25,7 +27,7 @@ const VideoInfo = ({ videoTaskId, videoId, fileName, setTextSegments }) => {
         };
 
         const intervalId = setInterval(checkStatus, 5000);
-        checkStatus(); // Immediate call to show the first status
+        checkStatus();
 
         return () => clearInterval(intervalId);
     }, [videoTaskId, setTextSegments, videoId]);
@@ -36,19 +38,39 @@ const VideoInfo = ({ videoTaskId, videoId, fileName, setTextSegments }) => {
     };
 
     return (
-        <div className="video-info">
-            <h3>Video: {fileName}</h3>
+        <Box>
+            <Box display="flex"  alignItems="center" sx={{ mt: 4 }} marginBlockEnd={2}>
+                <Typography variant="h6" gutterBottom>
+                    {fileName}
+                </Typography>
+                <Button 
+                    variant="outlined" 
+                    color="secondary" 
+                    onClick={reset} 
+                    sx={{ ml: 2 }}  // Adjust margin between items
+                >
+                    Upload New Video
+                </Button>
+            </Box>
+
             {loading ? (
-                <div>
-                    <p><LoadingSpinner small /> Getting text segments...</p>
-                    <p>Queue Position: {queuePosition}</p>
-                </div>
+                <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
+                    <CircularProgress size={24} />
+                    <Typography mt={1}>Getting text segments...</Typography>
+                    {queuePosition !== null && (
+                        <Typography mt={1}>Queue Position: {queuePosition}</Typography>
+                    )}
+                </Box>
             ) : (
-                <div>
-                    {queuePosition && <p>Queue Position: {queuePosition}</p>}
-                </div>
+                <Box>
+                    <VideoPlayer videoId={videoId} />
+                    {queuePosition !== null && (
+                        <Typography mt={1}>Queue Position: {queuePosition}</Typography>
+                    )}
+                    <SegmentsDisplay segments={segments} />
+                </Box>
             )}
-        </div>
+        </Box>
     );
 };
 

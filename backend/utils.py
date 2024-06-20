@@ -49,8 +49,7 @@ def transcribe_video(video_path):
         segments = transcribe_audio(audio_path)
     return segments
 
-
-def create_text_clip(text, start, end, font_size, font_color, video_size, position, bold=False, background_color=None, background_opacity=1.0, padding=10, margin=55):
+def create_text_clip(text, start, end, font_size, font_color, video_size, position, bold=False, background_color=None, padding=10, margin=55):
     # Text properties
     text_attributes = {
         'fontsize': font_size,
@@ -89,8 +88,11 @@ def create_text_clip(text, start, end, font_size, font_color, video_size, positi
     text_clip = text_clip.set_position((x, y))
 
     if background_color:
+        # Convert hex color with opacity to RGBA
+        bg_rgba = hex_to_rgba(background_color)
+        
         # Create a PIL image for the background
-        bg_image = Image.new('RGBA', (padded_text_width, padded_text_height), (*hex_to_rgb(background_color), int(background_opacity * 255)))
+        bg_image = Image.new('RGBA', (padded_text_width, padded_text_height), bg_rgba)
         
         # Convert PIL image to numpy array
         bg_array = np.array(bg_image)
@@ -109,11 +111,18 @@ def create_text_clip(text, start, end, font_size, font_color, video_size, positi
     # Return text clip if no background color
     return text_clip
 
-def hex_to_rgb(hex_color):
+def hex_to_rgba(hex_color):
     """
-    Convert hex color to RGB tuple.
+    Convert hex color with optional alpha to RGBA tuple.
     """
-    return tuple(int(hex_color[i:i+2], 16) for i in (1, 3, 5))
+    hex_color = hex_color.lstrip('#')
+    lv = len(hex_color)
+    if lv == 6:
+        return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4)) + (255,)
+    elif lv == 8:
+        return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4, 6))
+    else:
+        raise ValueError("Invalid hex color format")
 
 
 def generate_gif_zip(video_id, segments_list, template, output_zip_path):
@@ -161,7 +170,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
             if len(current_words) == max_words or word_info == words[-1]:
                 # For the last set of words in the segment, extend to the buffer end
                 end_time = extended_end - segment_start if word_info == words[-1] else relative_end
-                text_clip = create_text_clip(' '.join(current_words), current_start, end_time, font_size, font_color, video_clip.size, position, bold, background_color, background_opacity, padding, margin)
+                text_clip = create_text_clip(' '.join(current_words), current_start, end_time, font_size, font_color, video_clip.size, position, bold, background_color, padding, margin)
                 text_clips.append(text_clip)
                 current_words = []
                 current_start = relative_end  # Next clip starts where the previous ended

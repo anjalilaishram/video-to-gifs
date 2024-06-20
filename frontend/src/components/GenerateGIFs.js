@@ -1,50 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generateGIFs } from '../api';
-import LoadingSpinner from './LoadingSpinner';
 import {
     Box,
     Button,
     CircularProgress,
     FormControl,
-    FormControlLabel,
     Grid,
-    InputLabel,
-    MenuItem,
-    Select,
-    Slider,
-    Switch,
     TextField,
-    Typography
+    Typography,
+    Checkbox,
+    FormControlLabel
 } from '@mui/material';
 import { styled } from '@mui/system';
-import "./GenerateGIFs.css"
+import { MuiColorInput } from 'mui-color-input';
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
     marginBottom: theme.spacing(2),
 }));
 
+const defaultTemplate = {
+    font_color: "#FFFF00FF",  // Initial color with alpha
+    font_size: 144,
+    position: "bottom",
+    bold: true,
+    background_color: "#700000FF", // Initial color with alpha
+    padding: 34,
+    margin: 8,
+    max_words: 3,
+    fps: 10
+};
+
 const GenerateGIFs = ({ videoId, segments, setGifTaskId, setGifGenerated, generateGifQueuePosition, setGenerateGifQueuePosition }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [template, setTemplate] = useState({
-        font_color: "#FFFF00",
-        font_size: 144,
-        position: "bottom",
-        bold: true,
-        background_color: "#000000",
-        background_opacity: 0.5,
-        padding: 34,
-        margin: 8,
-        max_words: 3,
-        fps: 10
+    const [template, setTemplate] = useState(() => {
+        const savedTemplate = localStorage.getItem('gif_template');
+        return savedTemplate ? JSON.parse(savedTemplate) : defaultTemplate;
     });
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setTemplate(prevTemplate => ({
-            ...prevTemplate,
-            [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
-        }));
+        setTemplate(prevTemplate => {
+            const newTemplate = {
+                ...prevTemplate,
+                [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
+            };
+            localStorage.setItem('gif_template', JSON.stringify(newTemplate));
+            return newTemplate;
+        });
+    };
+
+    const handleColorChange = (color, name) => {
+        setTemplate(prevTemplate => {
+            const newTemplate = {
+                ...prevTemplate,
+                [name]: color
+            };
+            localStorage.setItem('gif_template', JSON.stringify(newTemplate));
+            return newTemplate;
+        });
     };
 
     const handleGenerateGIFs = async () => {
@@ -59,30 +73,17 @@ const GenerateGIFs = ({ videoId, segments, setGifTaskId, setGifGenerated, genera
             setGenerateGifQueuePosition(response.data.queue_position);
         } catch (error) {
             setError('Failed to generate GIFs');
-            console.log('Failed to generate GIFs', error)
+            console.error('Failed to generate GIFs', error);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box className="generate-gifs" p={3} borderRadius={2} boxShadow={3} bgcolor="background.paper">
+        <Box p={3} borderRadius={2} bgcolor="background.paper">
             <Typography variant="h5" gutterBottom>Template Settings</Typography>
-            <br></br>
+            <br />
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                    <StyledFormControl fullWidth>
-                        <TextField
-                            label="Font Color"
-                            type="color"
-                            name="font_color"
-                            value={template.font_color}
-                            onChange={handleInputChange}
-                            variant="outlined"
-                            fullWidth
-                        />
-                    </StyledFormControl>
-                </Grid>
                 <Grid item xs={12} sm={6}>
                     <StyledFormControl fullWidth>
                         <TextField
@@ -97,58 +98,37 @@ const GenerateGIFs = ({ videoId, segments, setGifTaskId, setGifGenerated, genera
                     </StyledFormControl>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <StyledFormControl fullWidth>
-                        <InputLabel>Position</InputLabel>
-                        <Select
-                            name="position"
-                            value={template.position}
-                            onChange={handleInputChange}
-                            variant="outlined"
-                        >
-                            <MenuItem value="top">Top</MenuItem>
-                            <MenuItem value="bottom">Bottom</MenuItem>
-                            <MenuItem value="left">Left</MenuItem>
-                            <MenuItem value="right">Right</MenuItem>
-                            <MenuItem value="top_left">Top Left</MenuItem>
-                            <MenuItem value="top_right">Top Right</MenuItem>
-                            <MenuItem value="bottom_left">Bottom Left</MenuItem>
-                            <MenuItem value="bottom_right">Bottom Right</MenuItem>
-                        </Select>
-                    </StyledFormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
                     <FormControlLabel
-                        control={<Switch checked={template.bold} onChange={handleInputChange} name="bold" />}
-                        label="Bold"
+                        control={
+                            <Checkbox
+                                checked={template.bold}
+                                onChange={handleInputChange}
+                                name="bold"
+                                color="primary"
+                            />
+                        }
+                        label="Bold Text"
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <StyledFormControl fullWidth>
-                        <TextField
-                            label="Background Color"
-                            type="color"
-                            name="background_color"
-                            value={template.background_color}
-                            onChange={handleInputChange}
-                            variant="outlined"
+                        <MuiColorInput
+                            label="Font Color"
+                            value={template.font_color}
+                            onChange={color => handleColorChange(color, 'font_color')}
+                            format="hex8"  // Use hex8 for alpha support
                             fullWidth
                         />
                     </StyledFormControl>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <StyledFormControl fullWidth>
-                        <Typography id="background-opacity-slider" gutterBottom>
-                            Background Opacity
-                        </Typography>
-                        <Slider
-                            aria-labelledby="background-opacity-slider"
-                            name="background_opacity"
-                            value={template.background_opacity}
-                            onChange={(e, newValue) => handleInputChange({ target: { name: 'background_opacity', value: newValue } })}
-                            step={0.1}
-                            min={0}
-                            max={1}
-                            valueLabelDisplay="auto"
+                        <MuiColorInput
+                            label="Background Color"
+                            value={template.background_color}
+                            onChange={color => handleColorChange(color, 'background_color')}
+                            format="hex8"  // Use hex8 for alpha support
+                            fullWidth
                         />
                     </StyledFormControl>
                 </Grid>
@@ -214,16 +194,14 @@ const GenerateGIFs = ({ videoId, segments, setGifTaskId, setGifGenerated, genera
                     className="generate-button"
                     fullWidth
                 >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Generate GIFs'}
+                    {loading ? (
+                        <Box display="flex" justifyContent="center">
+                            <CircularProgress size={24} color="inherit" />
+                        </Box>
+                    ) : 'Generate GIFs'}
                 </Button>
             </Box>
             {error && <Typography color="error" mt={2}>{error}</Typography>}
-            {generateGifQueuePosition !== null && (
-                <Box mt={2}>
-                    <LoadingSpinner small />
-                    <Typography mt={2}>Queue Position: {generateGifQueuePosition}</Typography>
-                </Box>
-            )}
         </Box>
     );
 };

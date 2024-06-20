@@ -1,17 +1,31 @@
 import React from 'react';
+import { Box, Paper, Typography } from '@mui/material';
 
 const SegmentsDisplay = ({ segments }) => {
     return (
-        <div className="segments-display">
-            <h3>Text Segments</h3>
-            <div className="segments">
+        <Box p={2}>
+            <Typography variant="h5" gutterBottom>
+                Text Segments
+            </Typography>
+            <Box display="flex" flexWrap="wrap" mt={1}>
                 {segments.map((segment, index) => (
-                    <span key={index} className="segment">
-                        {segment.text}
-                    </span>
+                    <Paper
+                        key={index}
+                        elevation={1}
+                        sx={{ 
+                            backgroundColor: '#f8f9fa',
+                            padding: '4px 8px',  // Reduced padding with better spacing
+                            borderRadius: 1,
+                            margin: '4px',  // Adjusted margin for better spacing
+                            textAlign: 'center',
+                            width: 'fit-content',
+                        }}
+                    >
+                        <Typography variant="body2">{segment.text}</Typography> {/* Smaller typography */}
+                    </Paper>
                 ))}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 };
 
