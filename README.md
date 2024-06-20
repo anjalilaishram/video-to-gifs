@@ -216,7 +216,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Response**:
   - **Success (200 OK)**
-    ```json
+    ```python
     {
       "video_id": "string",
       "task_id": "string"
@@ -229,7 +229,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
     | task_id   | string | The Celery task ID for processing the video |
 
   - **Error (400 Bad Request)**
-    ```json
+    ```python
     {
       "error": "No file part" | "No selected file"
     }
@@ -249,7 +249,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Response**:
   - **Success (200 OK)**
-    ```json
+    ```python
     {
       "status": "queued" | "processing" | "processed" | "failed",
       "queue_position": integer | null,
@@ -266,7 +266,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
     | video_id       | string  | The unique ID of the video                        |
 
   - **Error (404 Not Found)**
-    ```json
+    ```python
     {
       "error": "Task not found"
     }
@@ -286,7 +286,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Response**:
   - **Success (200 OK)**
-    ```json
+    ```python
     {
       "status": "queued" | "processing" | "complete" | "failed",
       "queue_position": integer | null,
@@ -303,7 +303,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
     | video_id       | string  | The unique ID of the video                        |
 
   - **Error (404 Not Found)**
-    ```json
+    ```python
     {
       "error": "Task not found"
     }
@@ -325,7 +325,7 @@ GET /result/{video_id}`
 
 - **Response**:
   - **Success (200 OK)**
-    ```json
+    ```python
     [
       {
         "segment_start": float,
@@ -350,7 +350,7 @@ GET /result/{video_id}`
     | words          | array  | List of words with individual timestamps            |
 
   - **Error (404 Not Found)**
-    ```json
+    ```python
     {
       "text_segments": []
     }
@@ -364,7 +364,7 @@ GET /result/{video_id}`
 - **Request**:
   - **Headers**: `Content-Type: application/json`
   - **Body**:
-    ```json
+    ```python
     {
       "video_id": "string",
       "segments_list": [
@@ -408,7 +408,7 @@ GET /result/{video_id}`
 
 - **Response**:
   - **Success (200 OK)**
-    ```json
+    ```python
     {
       "status": "queued",
       "task_id": "string"
@@ -421,7 +421,7 @@ GET /result/{video_id}`
     | task_id| string | The Celery task ID for GIF generation |
 
   - **Error (400 Bad Request)**
-    ```json
+    ```python
     {
       "error": "Segments list not provided and not found in the database"
     }
@@ -445,7 +445,7 @@ GET /result/{video_id}`
     The response will be a ZIP file containing the generated GIFs.
 
   - **Error (404 Not Found)**
-    ```json
+    ```python
     {
       "error": "GIFs not ready or failed"
     }
