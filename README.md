@@ -147,8 +147,8 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 - **Clone the repository and navigate to backend directory**:
   ```bash
-  git clone https://github.com/your-username/your-repo.git
-  cd your-repo/backend
+  git clone https://github.com/anjalilaishram/video-to-gifs.git
+  cd video-to-gifs/backend
   ```
 
 - **Create and activate a virtual environment**:
