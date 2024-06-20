@@ -38,8 +38,8 @@ This project allows you to upload videos, transcribe them using Whisper, and gen
 
    Clone the repository and navigate to the backend directory:
    ```bash
-   git clone https://github.com/your-username/your-repo.git
-   cd your-repo/backend
+   git clone https://github.com/anjalilaishram/video-to-gifs.git
+   cd video-to-gifs/backend
    ```
 
 2. **Create and Activate Virtual Environment**
