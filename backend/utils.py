@@ -26,7 +26,6 @@ def transcribe_audio(audio_path):
     """
     model = whisper.load_model(Config.WHISPER_MODEL)  # Choose the appropriate model size: 'base', 'small', 'medium', 'large'
     result = whisper.transcribe(model, audio_path)
-    print("result: ", json.dumps(result))
 
     segments = []
     for segment in result['segments']:
