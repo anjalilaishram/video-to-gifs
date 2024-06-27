@@ -135,7 +135,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
     font_color = template.get('font_color', 'white')
     font_size = template.get('font_size', 144)
     position = template.get('position', 'bottom')
-    max_words = template.get('max_words', 3)
+    max_words_per_text_frame = template.get('max_words_per_text_frame', 3)
     fps = template.get('fps', 10)
     bold = template.get('bold', False)
     background_color = template.get('background_color', '#000000')  # Default to black
@@ -166,7 +166,7 @@ def generate_gif_zip(video_id, segments_list, template, output_zip_path):
             relative_end = word_end - segment_start
 
             current_words.append(word_text)
-            if len(current_words) == max_words or word_info == words[-1]:
+            if len(current_words) == max_words_per_text_frame or word_info == words[-1]:
                 # For the last set of words in the segment, extend to the buffer end
                 end_time = extended_end - segment_start if word_info == words[-1] else relative_end
                 text_clip = create_text_clip(' '.join(current_words), current_start, end_time, font_size, font_color, video_clip.size, position, bold, background_color, padding, margin)
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     "background_opacity": 1,
     "padding": 34,
     "margin": 8,
-    "max_words": 3,
+    "max_words_per_text_frame": 3,
     "fps": 10
 }
     # segments = transcribe_video("/Users/navpreetsinghdevpuri/Downloads/output1.mp4")

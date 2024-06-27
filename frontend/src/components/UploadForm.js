@@ -54,9 +54,6 @@ const UploadForm = ({ setVideoId, setVideoTaskId, setFileName }) => {
         <Box className="upload-form" p={3} borderRadius={2} boxShadow={3} bgcolor="background.paper">
             <form onSubmit={handleSubmit}>
                 <FormControl fullWidth margin="normal">
-                    <InputLabel shrink htmlFor="file-upload">
-                        {file ? file.name : 'Choose File'}
-                    </InputLabel>
                     <HiddenInput
                         id="file-upload"
                         type="file"

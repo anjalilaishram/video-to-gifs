@@ -27,7 +27,7 @@ function App() {
         "background_opacity": 0.5,
         "padding": 34,
         "margin": 8,
-        "max_words": 3,
+        "max_words_per_text_frame": 3,
         "fps": 10
     };
 

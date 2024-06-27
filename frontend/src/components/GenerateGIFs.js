@@ -26,7 +26,7 @@ const defaultTemplate = {
     background_color: "#700000FF", // Initial color with alpha
     padding: 34,
     margin: 8,
-    max_words: 3,
+    max_words_per_text_frame: 3,
     fps: 10
 };
 
@@ -161,10 +161,10 @@ const GenerateGIFs = ({ videoId, segments, setGifTaskId, setGifGenerated, genera
                 <Grid item xs={12} sm={6}>
                     <StyledFormControl fullWidth>
                         <TextField
-                            label="Max Words"
+                            label="Max Words Per Text Frame"
                             type="number"
-                            name="max_words"
-                            value={template.max_words}
+                            name="max_words_per_text_frame"
+                            value={template.max_words_per_text_frame}
                             onChange={handleInputChange}
                             variant="outlined"
                             fullWidth

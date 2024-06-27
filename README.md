@@ -71,7 +71,32 @@ This project allows you to upload videos, transcribe them using Whisper, and gen
      ```
    - **Windows**: Download and install ImageMagick from the [official website](https://imagemagick.org/script/download.php). During installation, make sure to check the option to add ImageMagick to your system PATH.
 
-5. **Configure Environment Variables**
+5. **Install Redis**
+
+   Install Redis, required for Celery task queue:
+   - **macOS**: Use Homebrew:
+     ```bash
+     brew install redis
+     ```
+     Start Redis:
+     ```bash
+     brew services start redis
+     ```
+   - **Ubuntu/Debian**:
+     ```bash
+     sudo apt update
+     sudo apt install redis-server
+     ```
+     Start Redis:
+     ```bash
+     sudo systemctl start redis-server
+     ```
+   - **Windows**: Download Redis from the [official website](https://github.com/microsoftarchive/redis/releases). Extract the downloaded ZIP file, navigate to the directory, and run:
+     ```bash
+     redis-server.exe
+     ```
+
+6. **Configure Environment Variables**
 
    Create a `.env` file in the `backend` directory with the following content:
    ```
@@ -80,19 +105,18 @@ This project allows you to upload videos, transcribe them using Whisper, and gen
    CELERY_RESULT_BACKEND=redis://localhost:6379/0
    ```
 
-6. **Run Redis**
-
-   Ensure Redis is running. Start Redis with:
-   ```bash
-   redis-server
-   ```
-
 7. **Run MongoDB**
 
    Ensure MongoDB is running. Start MongoDB with:
-   ```bash
-   sudo systemctl start mongod
-   ```
+   - **macOS**:
+     ```bash
+     brew services start mongodb/brew/mongodb-community
+     ```
+   - **Ubuntu/Debian**:
+     ```bash
+     sudo systemctl start mongod
+     ```
+   - **Windows**: Run MongoDB from the installation directory or use the MongoDB Compass GUI.
 
 8. **Run Flask Application**
 
@@ -170,6 +194,8 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 - **Start MongoDB**:
   ```bash
   sudo systemctl start mongod
+  # For macOS:
+  brew services start mongodb/brew/mongodb-community
   ```
 
 - **Run the Flask app**:
@@ -311,9 +337,7 @@ Configure the backend using the `.env` file located in the `backend` directory. 
 
 ### Get Processed Text
 
-**Endpoint**: `
-
-GET /result/{video_id}`
+**Endpoint**: `GET /result/{video_id}`
 
 - **Description**: Gets the transcribed text segments from the video.
 - **Request**:
@@ -385,7 +409,7 @@ GET /result/{video_id}`
         "font_color": "string",
         "font_size": integer,
         "position": "string",
-        "max_words": integer,
+        "max_words_per_text_frame": integer,
         "fps": integer
       }
     }
@@ -403,7 +427,7 @@ GET /result/{video_id}`
     | font_color     | string   | Font color of the text                              |
     | font_size      | integer  | Font size of the text                               |
     | position       | string   | Position of the text (`'top_left'`, `'top_center'`, `'top_right'`, `'center_left'`, `'center'`, `'center_right'`, `'bottom_left'`, `'bottom_center'`, `'bottom_right'`) |
-    | max_words      | integer  | Maximum words to show at once                       |
+    | max_words_per_text_frame      | integer  | Maximum words to show at once                       |
     | fps            | integer  | Frames per second for the GIF                       |
 
 - **Response**:
