@@ -54,7 +54,7 @@ const DownloadGIFs = ({ gifTaskId, videoId, reset, setGifGenerated, gifGenerated
                 <Box textAlign="center">
                     <CircularProgress />
                     <Typography variant="body2" mt={2}>
-                        {generateGifQueuePosition ? `Queue Position: ${generateGifQueuePosition}` : 'Processing...'}
+                        {generateGifQueuePosition !== null ? `Queue Position: ${generateGifQueuePosition}` : 'Processing...'}
                     </Typography>
                 </Box>
             )}
